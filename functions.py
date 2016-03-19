@@ -62,28 +62,49 @@ def get_market_closing_time(google_finance_data):
     return closingtime.time()
 
 #this includes market times!
-def generate_chart_interval_datetimes(start_datetime,end_datetime,interval_seconds):
+def generate_chart_interval_datetimes(start_datetime:dt.datetime,end_datetime:dt.datetime,interval_seconds:int):
     values = []
-    marketopen = get_market_opening_time()
-    marketclosed = get_market_closing_time()
+    marketopen = get_market_opening_time(get_google_data('ZVZZT',interval_seconds,1))
+    marketclosed = get_market_closing_time(get_google_data('ZVZZT',interval_seconds,1))
 
-    start_datetime.combine(time=marketopen)
+    start_datetime.combine(date=start_datetime.date(),time=marketopen)
 
-    market_duration = marketclosed - marketopen
-    input_days_difference = end_datetime.days - start_datetime.days
+    market_duration = dt.datetime.combine(dt.datetime.today(),marketclosed) - dt.datetime.combine(dt.datetime.today(),marketopen)
+    input_days_difference = end_datetime.day - start_datetime.day
     market_trading_seconds_per_day = market_duration.total_seconds()
     input_trading_day_seconds = input_days_difference * market_trading_seconds_per_day
-    input_hours_difference = end_datetime.hours - start_datetime.hours
+    input_hours_difference = end_datetime.hour - start_datetime.hour
     input_hours_seconds = input_hours_difference * 3600
-    input_minutes_difference = end_datetime.minutes - start_datetime.minutes
+    input_minutes_difference = end_datetime.minute - start_datetime.minute
     input_minutes_seconds = input_minutes_difference * 60
-    input_seconds_difference = end_datetime.seconds - start_datetime.seconds
+    input_seconds_difference = end_datetime.second - start_datetime.second
     total_seconds = input_trading_day_seconds + input_hours_seconds + input_minutes_seconds + input_seconds_difference
 
     total_intervals = total_seconds // interval_seconds
+    print(total_intervals)
+    for i in range(0,int(total_intervals)):
 
-    for i in range(1,total_intervals):
-        amount_to_add = td
+        amount_to_add = dt.timedelta(hours=marketopen.hour,minutes=marketopen.minute) + dt.timedelta(seconds=interval_seconds)*i
+        basevalue = start_datetime + amount_to_add
+        value = basevalue
+        print(value.time())
+        print(marketclosed)
+        print(value.time() > marketclosed)
+        print(value.date())
+        print(value.date().weekday())
+        if value.time() > marketclosed:  # advance to next day
+            value + dt.timedelta(days=1)
+            value.combine(value.date(),marketopen)
+        if value.weekday() == 6: # in case its a sunday
+            value + dt.timedelta(days=2)
+            value.combine(value.date(),marketopen)
+        if value.weekday() == 7: # in case its a saturday
+            value + dt.timedelta(days=1)
+            value.combine(value.date(),marketopen)
+        values.append(value)
+
+    print(marketclosed)
+    return values
 
 
 
@@ -114,3 +135,7 @@ print(get_google_data('AMD',300,7))
 print(get_market_opening_time(get_google_data('AMD',300,7)))
 
 print(get_market_closing_time(get_google_data('AMD',300,7)))
+
+print(generate_chart_interval_datetimes(dt.datetime(2016,3,12),dt.datetime(2016,3,19),300))
+
+print(dt.datetime.now().isoweekday())
