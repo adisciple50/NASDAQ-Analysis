@@ -92,13 +92,16 @@ def generate_chart_interval_datetimes(start_datetime:dt.datetime,end_datetime:dt
         print(value.time() > marketclosed)
         print(value.date())
         print(value.date().weekday())
-        if value.time() > marketclosed:  # advance to next day
+        # advance to next day
+        if value.time() > marketclosed:
             value + dt.timedelta(days=1)
             value.combine(value.date(),marketopen)
-        if value.weekday() == 6: # in case its a sunday
+        # in case its a saturday
+        if value.weekday() == 5:
             value + dt.timedelta(days=2)
             value.combine(value.date(),marketopen)
-        if value.weekday() == 7: # in case its a saturday
+        # in case its a sunday
+        if value.weekday() == 6:
             value + dt.timedelta(days=1)
             value.combine(value.date(),marketopen)
         values.append(value)
