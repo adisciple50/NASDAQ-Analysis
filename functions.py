@@ -1,12 +1,6 @@
-from yahoo_finance import Share
-from datetime import date
-import operator
-
-import pandas as pd
-import numpy as np
 import urllib3
 import datetime as dt
-import matplotlib.pyplot as plt
+
 
 
 class EST(dt.tzinfo):
@@ -87,13 +81,10 @@ def generate_chart_interval_datetimes(start_datetime:dt.datetime,end_datetime:dt
         amount_to_add = dt.timedelta(hours=marketopen.hour,minutes=marketopen.minute) + dt.timedelta(seconds=interval_seconds)*i
         basevalue = start_datetime + amount_to_add
         value = basevalue
-        print(value.time())
-        print(marketclosed)
-        print(value.time() > marketclosed)
-        print(value.date())
-        print(value.date().weekday())
+
         # advance to next day
         if value.time() > marketclosed:
+            print("Advanced TO Next Day")
             value + dt.timedelta(days=1)
             value.combine(value.date(),marketopen)
         # in case its a saturday
@@ -104,6 +95,13 @@ def generate_chart_interval_datetimes(start_datetime:dt.datetime,end_datetime:dt
         if value.weekday() == 6:
             value + dt.timedelta(days=1)
             value.combine(value.date(),marketopen)
+
+        print(value.time())
+        print(marketclosed)
+        print(value.time() > marketclosed)
+        print(value.date())
+        print(value.date().weekday())
+
         values.append(value)
 
     print(marketclosed)
